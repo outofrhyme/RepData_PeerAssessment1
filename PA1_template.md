@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -14,10 +9,18 @@ output:
 
 The data is already present in the forked working directory, so we do not need to download the data. However, it is zipped, so it needs to be extracted and then we must see what the condition of the data is.
 
-```{r load_data}
+
+```r
 unzip('activity.zip')
 activity <- read.csv('activity.csv')
 str(activity)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 We now have a readable dataframe. Later, we will need to strip NAs, convert the date format, etc. Additional manipulation and transformation will be performed inline below to meet the needs of each analysis.
@@ -28,7 +31,8 @@ We now have a readable dataframe. Later, we will need to strip NAs, convert the 
 
 Here is a histogram showing the total number of steps taken each day. To produce this histogram I created a new dataframe aggregating the total number of steps per day. I've increased the number of bins to increase the granularity of the histogram:
 
-```{r stepsperday_hist}
+
+```r
 ## This dataframe consolidates all steps by date.
 
 activityperday <- na.omit(
@@ -46,10 +50,18 @@ hist(activityperday$steps,
      breaks=9)
 ```
 
+![](PA1_template_files/figure-html/stepsperday_hist-1.png) 
+
 *2. Calculate and report the mean and median total number of steps taken per day.*
 
-```{r stepsperday_summary}
+
+```r
 summary(activityperday$steps, digits=6)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    41.0  8841.0 10765.0 10766.2 13294.0 21194.0
 ```
 
 We can see here that across all the days when there was activity, the mean is 10766 steps per day, and the median is 10765 steps per day.
@@ -58,7 +70,8 @@ We can see here that across all the days when there was activity, the mean is 10
 
 *1. Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)*
 
-```{r stepsperinterval_plot}
+
+```r
 ## This dataframe consolidates all steps by time interval.
 
 activitypertime <- na.omit(activity)
@@ -80,12 +93,20 @@ plot(x=activitypertime$time,
      ylim=c(0,210))
 ```
 
+![](PA1_template_files/figure-html/stepsperinterval_plot-1.png) 
+
 *2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 
-```{r stepsperinterval_max}
+
+```r
 activitypertime[
         (activitypertime$steps == max(activitypertime$steps)),
         ]
+```
+
+```
+##     time    steps
+## 104  835 206.1698
 ```
 
 Time interval 835 contains the most steps, on average across all the days in the dataset.
@@ -94,27 +115,31 @@ Time interval 835 contains the most steps, on average across all the days in the
 
 *1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s).*
 
-```{r total_nas}
+
+```r
 sum(
         is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 
 *2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.*
 
-```{r nas_strategy}
 
+```r
 ## First let's round the average steps per time to whole numbers.
 
 activitypertime$steps <- round(activitypertime$steps)
-
 ```
 
 
 *3. Create a new dataset that is equal to the original dataset but with the missing data filled in.*
 
-```{r fill_nas}
 
+```r
 ## Create a new data frame to store the modeled data
 
 activitymodel <- activity
@@ -134,12 +159,12 @@ for (i in 1:length(activitymodel$steps)){
                 activitymodel$steps[i] <- activitypertime$steps[activitypertime$time == int]
         }
 }
-
 ```
 
 *4. Make a histogram of the total number of steps taken each day and calculate and report the mean and median total number of steps taken per day.*
 
-```{r activitymodel_hist}
+
+```r
 ## This dataframe consolidates all steps by date.
 
 activityperdaymodel <- na.omit(
@@ -155,10 +180,19 @@ hist(activityperdaymodel$steps,
      xlab='Total Steps',
      col='blue',
      breaks=9)
+```
 
+![](PA1_template_files/figure-html/activitymodel_hist-1.png) 
+
+```r
 ## And the mean and median.
 
 summary(activityperdaymodel$steps, digits=6)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    41.0  9819.0 10762.0 10765.6 12811.0 21194.0
 ```
 
 *Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?*
@@ -169,7 +203,8 @@ Yes, there are more values in the dataframe and so the frequencies are higher. I
 
 *1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.*
 
-```{r weekdays}
+
+```r
 activitymodel$date <- as.POSIXlt(
         (as.character(activitymodel$date)))
         
@@ -201,7 +236,8 @@ activitymodel$weekdays <- weekdays
 
 From the below graphs, it appears that activity tends to start later on weekends, but is higher throughout the course of the day on average.
 
-```{r weekdays_plots}
+
+```r
 ## This dataframe consolidates all modeled steps by time interval.
 
 modeledtime <- aggregate(
@@ -231,5 +267,6 @@ plot(x=plot2$time,
      ylab='Average Steps',
      xlim=c(0,2360),
      ylim=c(0,210))
-
 ```
+
+![](PA1_template_files/figure-html/weekdays_plots-1.png) 
