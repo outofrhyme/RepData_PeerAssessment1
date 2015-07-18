@@ -128,6 +128,8 @@ sum(
 
 *2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.*
 
+Let's use the average steps per time interval. For each missing value, we will check the average number of steps based on the time interval for the missing data.
+
 
 ```r
 ## First let's round the average steps per time to whole numbers.
